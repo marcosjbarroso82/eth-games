@@ -13,6 +13,7 @@ contract Challenge {
   uint numberOfMoves = 1;
   
   uint public turn;
+  uint public bet = 1 ether;
   
   modifier isPlayer(address _player) {
     require(_player == player1 || _player == player2);
@@ -28,6 +29,11 @@ contract Challenge {
         revert("it is not your turn!");
     }
     _;
+  }
+
+  modifier isValidMove(uint _move) {
+      require(_move > 0 && _move < 10);
+      _;
   }
 
   function getGameStatus() public view returns(string){
@@ -52,7 +58,10 @@ contract Challenge {
       }
   }
 
-  function move(uint _move) external isPlayer(msg.sender) isValidTurn(msg.sender){
+  function move(uint _move) external 
+    isPlayer(msg.sender) 
+    isValidMove(_move)
+    isValidTurn(msg.sender){
       if(msg.sender == player1) {
           player1Move = _move;
       } else {
@@ -64,11 +73,24 @@ contract Challenge {
       if(keccak256(getGameStatus()) == keccak256('finished')){
           // game has ended
           // TODO: Implement Reward
-          emit Log('You are the winner!');
+          address winner = getWinner();
+          winner.transfer(address(this).balance);
       }
   }
+  
+  function reset() internal {
+      player1 = address(0);
+      player2 = address(0);
+      
+      player1Move = 0;
+      player2Move = 0;
+      
+      numberOfPlayers = 0;
+      turn = 0;
+  }
 
-  function joinGame() public {
+  function joinGame() external payable {
+    require(msg.value == bet);
     if (player1 == address(0)) {
       player1 = msg.sender;
       emit Log("player1 - joined");
