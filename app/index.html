@@ -7,6 +7,14 @@
   <body>
     <div id="app">
       <app></app>
+      <button @click='getAccount'>getAccount</button>
+      <h3>account: {{ account }}</h3>
+      <button @click='getBalance'>getBalance</button>
+      <h3>balance: {{ balance }}</h3>
+      <input type="text" v-model='receiver'>
+      coinToSend: <input type="text" v-model='coinToSend'>
+
+      <button @click='sendCoins'>sendCoins</button>
 
     </div>
     <script src="app.js"></script>
