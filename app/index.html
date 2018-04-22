@@ -9,13 +9,21 @@
       <app></app>
       <button @click='getDebug'>getDebug</button>
       <p>debug: {{ debug }}</p>
+      <button @click='getGamesCounter'>getGamesCounter</button>
+      <p>gamesCounter: {{ gamesCounter }}</p>
       <button @click='getMygames'>getMyGames</button>
       <p>myGames: {{ myGames }}</p>
+      <button @click='getClosedJoinGames'>getClosedJoinGames</button>
+      <p>closedJoinGames: {{ closedJoinGames }}</p>
       <button @click='getAvailableGames'>getAvailableGames</button>
       <p>availableGames: {{ availableGames }}</p>
       <p>account: {{ account }}</p>
       <p>gameId: {{ gameId }}</p>
       <button @click='createGame'>createGame</button>
+      <div class="form-group">
+        <input type="text" class="form-control" v-model='joinGameId'>
+        <button @click='joinGame'>joinGame</button>
+      </div>
 
     </div>
     <script src="app.js"></script>
