@@ -9,30 +9,46 @@ import { default as Web3} from 'web3';
 import { default as contract } from 'truffle-contract'
 
 // Import our contract artifacts and turn them into usable abstractions.
-import metacoin_artifacts from '../../build/contracts/MetaCoin.json'
+import multi_rps_artifacts from '../../build/contracts/MultiRPS.json'
 
-// MetaCoin is our usable abstraction, which we'll use through the code below.
-var MetaCoin = contract(metacoin_artifacts);
-
+var MultiRPS = contract(multi_rps_artifacts);
 
 new Vue({
   el: '#app',
   data: {
-    balance,
+    debug: '',
     account: 0,
-    coinToSend: 1,
-    receiver: '0x5c7E722F51cc316fe74C9AF95e7309c4368366c4'
+    gameId: '',
+    myGames: [],
+    availableGames: []
   },
   components: { App },
   methods: {
-    getBalance: function() {
+    getDebug: function() {console.log('debug');},
+    getAvailableGames: function() {
       var vm = this;
       var meta;
-      MetaCoin.deployed().then(function(instance) {
-        var result = instance.getBalance.call(vm.account, {from: vm.account});
+      MultiRPS.deployed().then(function(instance) {
+        var result = instance.getAvailableGames.call({from: vm.account});
         return result;
       }).then(function(value) {
-        vm.balance = value.valueOf();
+        // vm.availableGames = value;
+        vm.availableGames = value.filter( ( el ) => !vm.myGames.includes( el ) );
+      }).catch(function(e) {
+        console.log(e);
+      });
+    },
+    getMygames: function() {
+      var vm = this;
+      var meta;
+      MultiRPS.deployed().then(function(instance) {
+        console.log('first then');
+        var result = instance.getPlayerGames.call(vm.account, {from: vm.account});
+        // debugger;
+        return result;
+      }).then(function(value) {
+        console.log('second then');
+        vm.myGames = value;
       }).catch(function(e) {
         // debugger;
         console.log(e);
@@ -56,19 +72,27 @@ new Vue({
 
       });
     },
-    sendCoins: function() {
+    createGame: function() {
       var mv = this;
       console.log("Initiating transaction... (please wait)");
 
       var meta;
-      MetaCoin.deployed().then(function(instance) {
+      MultiRPS.deployed().then(function(instance) {
+        console.log('first then');
         meta = instance;
-        return meta.sendCoin(mv.receiver, mv.amount, {from: mv.account});
-      }).then(function() {
-        console.log("Transaction complete!");
-        setTimeout(function () {
-          mv.getBalance();
-        }, 2000);
+        return meta.createGame({from: mv.account, value: web3.toWei(2, 'ether')});
+      }).then(function(result) {
+        console.log("Transaction complete!", result);
+
+        // Catch GameCreated Event
+        for (var i = 0; i < result.logs.length; i++) {
+          var log = result.logs[i];
+
+          if (log.event == "GameCreated") {
+            mv.gameId = log.args.gameId.valueOf();
+            break;
+          }
+        }
 
       }).catch(function(e) {
         console.log(e);
@@ -77,9 +101,10 @@ new Vue({
     }
   },
   created : function() {
-    MetaCoin.setProvider(web3.currentProvider);
+    MultiRPS.setProvider(web3.currentProvider);
     console.log('provider set');
     this.getAccount();
-    this.getBalance();
+    this.getMygames();
+    this.getAvailableGames();
   }
 })
