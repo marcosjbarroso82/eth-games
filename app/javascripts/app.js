@@ -23,22 +23,133 @@ new Vue({
     gamesCounter: 0,
     myGames: [],
     availableGames: [],
-    closedJoinGames: []
+    closedJoinGames: [],
+    game: '',
+    move: '',
+    pass: '',
+    moveEnc: ''
   },
   components: { App },
   methods: {
+    _makeMove: function() {
+      console.log("Initiating transaction... (please wait)");
+      var vm = this;
+      var meta;
+      console.log('_makeMove', vm.gameId, vm.moveEnc);
+
+      return MultiRPS.deployed().then(function(instance) {
+        console.log('first then in _makeMove');
+        meta = instance;
+        return meta.move(vm.gameId, vm.moveEnc, {from: vm.account});
+      }).then(function(result) {
+        console.log("Transaction Move complete!", result);
+        // Catch GameCreated Event
+
+        vm.getGame();
+      }).catch(function(e) {
+        console.log(e);
+        console.log("Error sending coin; see log.");
+      });
+    },
+    makeMove: function(){
+      if(this.move == '' || this.pass == '') {
+        alert('You have to enter a pass and choose a move!');
+        return;
+      }
+
+      var vm = this;
+      var meta;
+      this.getmoveEnc().then(function(result){
+        console.log('then afet getmoveEnc');
+        vm._makeMove()
+
+      }
+      );
+    },
+    getmoveEnc: function(){
+
+
+      console.log("Initiating transaction... (please wait)");
+      var vm = this;
+      var meta;
+      return MultiRPS.deployed().then(function(instance) {
+        console.log('first then');
+        meta = instance;
+        return meta.enc(vm.move, vm.pass, {from: vm.account});
+      }).then(function(result) {
+        console.log("Transaction complete!", result);
+        vm.moveEnc = result;
+
+        // this.move = '';
+        // this.pass = '';
+        // this.getGame();
+      }).catch(function(e) {
+        console.log(e);
+
+        console.log("Error sending coin; see log.");
+      });
+    },
     refresh: function() {
       var vm = this;
       vm.getGamesCounter().then(function() {
           vm.getClosedJoinGames().then(function() {
             vm.getMygames().then(function(){
-              vm.getAvailableGames();
+              vm.gameId = vm.myGames[0];
+              vm.getGame().then(function(){
+                vm.getAvailableGames();
+              });
             });
           });
       });
     },
 
     getDebug: function() {console.log('debug');},
+    getGame: function() {
+      var vm = this;
+      var meta;
+      return MultiRPS.deployed().then(function(instance) {
+        var result = instance.getGame.call(vm.gameId, {from: vm.account});
+        return result;
+      }).then(function(value) {
+        // vm.availableGames = value;
+        // vm.closedJoinGames = value.filter( ( el ) => !vm.myGames.includes( el ) );
+        console.log(value);
+        var nullString = '0x0000000000000000000000000000000000000000000000000000000000000000';
+        var nullAddress = '0x0000000000000000000000000000000000000000';
+
+        var game =  {
+          'player1': value[0],
+          'player2': value[1],
+          'player1Move': value[2],
+          'player1MoveEnc': value[3],
+          'player1Pass': value[4],
+          'player1Paid': value[5],
+          'player2Move': value[6],
+          'player2MoveEnc': value[7],
+          'player2Pass': value[8],
+          'player2Paid': value[9]
+        };
+
+        var cleanGame = {};
+        if(game.player1 == vm.account) {
+          cleanGame['enemy'] = game.player2 != nullAddress ? game.player2 : false;
+          cleanGame['enemyMoveEnc'] = game.player2MoveEnc != nullString ? game.player2MoveEnc : false;
+          cleanGame['enemyMove'] = game.player2Move != nullString ? game.player2Move : false;
+          cleanGame['ownMoveEnc'] = game.player1MoveEnc != nullString ? game.player1MoveEnc : false;
+          cleanGame['ownMove'] = game.player1Move != nullString ? game.player1Move : false;
+        } else {
+          cleanGame['enemy'] = game.player1 != nullAddress ? game.player1 : false;
+          cleanGame['enemyMoveEnc'] = game.player1MoveEnc != nullString ? game.player1MoveEnc : false;
+          cleanGame['enemyMove'] = game.player1Move != nullString ? game.player1Move : false;
+          cleanGame['ownMoveEnc'] = game.player2MoveEnc != nullString ? game.player2MoveEnc : false;
+          cleanGame['ownMove'] = game.player2Move != nullString ? game.player2Move : false;
+        }
+        // debugger;
+        vm.game = cleanGame;
+      }).catch(function(e) {
+        console.log(e);
+      });
+    },
     getGamesCounter: function() {
       var vm = this;
       var meta;
@@ -165,7 +276,6 @@ new Vue({
         vm.refresh();
       }).catch(function(e) {
         console.log(e);
-
         console.log("Error sending coin; see log.");
       });
     }

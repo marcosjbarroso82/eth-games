@@ -13,6 +13,7 @@
     <div id="app">
       <!-- <app></app> -->
       <div class="container">
+        <h3>Controls</h3>
         <div class="form-group row">
             <label class="col-sm-3 col-form-label">Choose one of your games</label>
             <div class="col-sm-5">
@@ -30,41 +31,63 @@
           </select>
           </div>
             <div class="col-sm-2">
-            <button type="button" class="btn btn-primary pull-right">Join <small>implement!</small></button>
+            <button @click='joinGame' type="button" class="btn btn-primary pull-right">Join</button>
           </div>
         </div>
-      <hr>
-      <div class="form-group row ">
-        <label class="col-sm-3 col-form-label">Create a Game</label>
-        <div class="col-sm-5">
-          <button type="button" class="btn btn-primary">Create</button>
+        <hr>
+        <div class="form-group row ">
+          <label class="col-sm-3 col-form-label">Create a Game</label>
+          <div class="col-sm-5">
+            <button type="button" class="btn btn-primary" @click='createGame'>Create</button>
+          </div>
         </div>
-      </div>
-      <hr>
-      
+        <hr>
+        <div class="form-group row ">
+          <label class="col-sm-3 col-form-label">Get Game Details</label>
+          <div class="col-sm-5">
+            <button type="button" class="btn btn-primary" @click='getGame'>Get Details</button>
+          </div>
+        </div>
+        <hr>
+        <h3>Game Details</h3>
+        <div  v-if='game'>
+          <p>gameId: {{ gameId }}</p>
+          <p>enemy: {{ game.enemy}}</p>
+          <p>enemyMoveEnc: {{ game.enemyMoveEnc}}</p>
+          <p>enemyMove: {{ game.enemyMove}}</p>
+          <!-- <p>next moveEnc:  {{ moveEnc }}</p> -->
+          <!-- <p>ownMoveEnc: {{ game.ownMoveEnc}}</p> -->
+          <template v-if='game.ownMoveEnc'>
+            <p>ownMoveEnc: {{ game.ownMoveEnc}}</p>
+          </template>
+          <template v-else>
+            <div class="form-group row ">
+              <label class="col-sm-3 col-form-label">Make you move!</label>
+              <div class="col-sm-3">
+              <select class="custom-select mr-sm-1" id="inlineFormCustomSelect" v-model='move'>
+                <option value="r">Rock</option>
+                <option value="p">Paper</option>
+                <option value="s">Scissor</option>
+              </select>
+              </div>
+              <div class="col-sm-3">
+                <input type="text" class="form-control" v-model="pass" placeholder="Enter a pass to encript your move">
+              </div>
+              <div class="col-sm-2">
+                <button @click='makeMove' type="button" class="btn btn-primary pull-right">Move</button>
+              </div>
+            </div>
+          </template>
+          <p>ownMove: {{ game.ownMove}}</p>
+          <!-- {{ game }} -->
+        </div>
+        <hr>
 
 
 
 
 
-      <!-- <button @click='getDebug'>getDebug</button> -->
-      <p>debug: {{ debug }}</p>
-      <!-- <button @click='getGamesCounter'>getGamesCounter</button> -->
-      <p>gamesCounter: {{ gamesCounter }}</p>
-      <!-- <button @click='getMygames'>getMyGames</button> -->
-      <p>myGames: {{ myGames }}</p>
-      <!-- <button @click='getClosedJoinGames'>getClosedJoinGames</button> -->
-      <p>closedJoinGames: {{ closedJoinGames }}</p>
-      <!-- <button @click='getAvailableGames'>getAvailableGames</button> -->
-      <p>availableGames: {{ availableGames }}</p>
-      <p>account: {{ account }}</p>
-      <p>gameId: {{ gameId }}</p>
-      <p>joinGameId: {{ joinGameId }}</p>
-      <button @click='createGame'>createGame</button>
-      <div class="form-group">
-        <input type="text" class="form-control" v-model='joinGameId'>
-        <button @click='joinGame'>joinGame</button>
-      </div>
+
 
       <button @click='refresh'>refresh</button>
 

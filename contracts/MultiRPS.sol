@@ -160,10 +160,31 @@ contract MultiRPS {
     return closedJoinGames;
   }
 
-  function dummyCreateGame() private returns(uint){
-    Game memory game = Game(msg.sender, address(0), '', '', '', false, '', '', '', false);
-    uint gameId = games.push(game) - 1;
-    return gameId;
+  function getGame(uint _gameId) public view
+    returns(
+      address player1,
+      address player2,
+      bytes32 player1Move,
+      bytes32 player1MoveEnc,
+      bytes32 player1Pass,
+      bool player1Paid,
+      bytes32 player2Move,
+      bytes32 player2MoveEnc,
+      bytes32 player2Pass,
+      bool player2Paid) {
+    Game memory game = games[_gameId];
+    return (
+      game.player1,
+      game.player2,
+      game.player1Move,
+      game.player1MoveEnc,
+      game.player1Pass,
+      game.player1Paid,
+      game.player2Move,
+      game.player2MoveEnc,
+      game.player2Pass,
+      game.player2Paid
+    );
   }
 
   function joinGame(uint _gameId) external payable {
@@ -176,7 +197,6 @@ contract MultiRPS {
     closedJoinGames.push(_gameId);
 
     emit GameJoined(_gameId, msg.sender);
-
   }
 
   function enc(bytes32 _value, bytes32 _pass) public pure returns(bytes32){
