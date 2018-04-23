@@ -11,42 +11,135 @@
   <body>
     <div id="app">
       <div class="container">
-        <h3>Controls</h3>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Choose one of your games</label>
-            <div class="col-sm-5">
-              <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" v-model='gameId'>
-                <option v-for="(id, index) in myGames" v-bind:value="id">Game #{{ id }}</option>
-              </select>
+
+        <div class="row">
+          <div class="col-sm"></div>
+          <div class="col-sm">
+            <h3>Rock Paper and Scissors</h1><br/>
+            <form>
+              <div class="form-group">
+                <label for="choose-game">Choose one of your games!</label>
+
+                <select v-on:change="getGame" class="custom-select mr-sm-2" id="choose-game" v-model='gameId'>
+                  <option v-for="(id, index) in myGames"
+                    v-bind:value="id">Game #{{ id }}</option>
+                </select>
+              </div>
+
+              <div class="form-group-inline">
+                <label for="join-game" style="width: 100%">Join a games!</label>
+                <select class="custom-select col-sm-8" id="join-game" v-model='joinGameId'>
+                  <option v-for="(id, index) in availableGames" v-bind:value="id">Game #{{ id }}</option>
+                </select>
+                  <button @click='joinGame' type="button" class="btn btn-primary">Join Game</button>
+              </div>
+
+              <div class="text-center mt-4">
+                  <button type="button" class="btn btn-primary" @click='createGame'>Create a New Game</button>
+              </div>
+            </form>
+          </div>
+          <div class="col-sm"></div>
+        </div>
+
+        <div class="row" v-if='game'>
+          <div class="col-sm"></div>
+          <div class="col-sm">
+            <hr>
+
+            <h4>Game #{{ gameId }}
+              <button type="button" class="btn btn-sm btn-primary" @click='getGame'>Refresh</button>
+
+            </h4>
+
+            <template v-if='!game.paid'>
+              <div v-if='game.enemyMoveEnc' class="alert alert-warning" role="alert">
+                Your <strong>adversary</strong> has already made it's <strong>move</strong>!
+              </div>
+              <div v-if='!game.ownMove && game.ownMoveEnc && game.ownMoveEnc' class="alert alert-warning" role="alert">
+                You have both made your moves. Time to decrypt them!
+              </div>
+              <div v-if='game.enemyMoveEnc && !game.enemyMove' class="alert alert-warning" role="alert">
+                Your <strong>adversary</strong> has to <strong>decrypt</strong> it's move!
+              </div>
+              <div v-if='!game.enemy && game.ownMoveEnc' class="alert alert-warning" role="alert">
+                You have <strong>no adversary yet</strong>. You have to wait for someone to join!
+              </div>
+              <div v-if='game.enemyMove && game.ownMove' class="alert alert-warning" role="alert">
+                You have both decrypt your moves. Time to collect!
+              </div>
+            </template>
+            <div v-if='game.paid' class="alert alert-success" role="alert">
+              This game has ended and <strong>You have been paid!</strong>
             </div>
-        </div>
-        <hr>
-        <div class="form-group row ">
-          <label class="col-sm-3 col-form-label">Join a Game</label>
-          <div class="col-sm-3">
-          <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" v-model='joinGameId'>
-            <option v-for="(id, index) in availableGames" v-bind:value="id">Game #{{ id }}</option>
-          </select>
+
+
+            <template v-if='game.ownMove && game.enemyMove && !game.paid'>
+              <div class="text-center mt-4">
+
+                <button @click='withdraw' type="button" class="btn btn-primary">Withdraw</button>
+              </div>
+            </template>
+
+            <form v-if='!game.ownMoveEnc'>
+              <div class="form-group">
+                <label for="choose-game">Choose a move</label>
+
+                <select class="custom-select mr-sm-1" id="inlineFormCustomSelect" v-model='move'>
+                  <option value="r">Rock</option>
+                  <option value="p">Paper</option>
+                  <option value="s">Scissor</option>
+                </select>
+              </div>
+
+              <div class="form-group-inline">
+                <label for="join-game">Choose a password</label>
+                <input type="text" class="form-control" v-model="pass" placeholder="Enter a pass to encript your move">
+
+              </div>
+
+              <div class="text-center mt-4">
+                <button @click='makeMove' type="button" class="btn btn-primary pull-right">Move</button>
+
+              </div>
+            </form>
+
+            <!-- Decript Form -->
+            <form v-if='!game.ownMove && game.ownMoveEnc && game.ownMoveEnc'>
+              <div class="form-group">
+                <label for="choose-game">Choose a move</label>
+
+                <select class="custom-select mr-sm-1" id="inlineFormCustomSelect" v-model='move'>
+                  <option value="r">Rock</option>
+                  <option value="p">Paper</option>
+                  <option value="s">Scissor</option>
+                </select>
+              </div>
+
+              <div class="form-group-inline">
+                <label for="join-game">Choose a password</label>
+                <input type="text" class="form-control" v-model="pass" placeholder="Enter a pass to encript your move">
+
+              </div>
+
+              <div class="text-center mt-4">
+                <button @click='decriptMove' type="button" class="btn btn-primary pull-right">Decript Move</button>
+
+              </div>
+            </form>
+            <!-- End Decript Form -->
+
           </div>
-            <div class="col-sm-2">
-            <button @click='joinGame' type="button" class="btn btn-primary pull-right">Join</button>
-          </div>
+          <div class="col-sm"></div>
         </div>
-        <hr>
-        <div class="form-group row ">
-          <label class="col-sm-3 col-form-label">Create a Game</label>
-          <div class="col-sm-5">
-            <button type="button" class="btn btn-primary" @click='createGame'>Create</button>
-          </div>
-        </div>
-        <hr>
-        <div class="form-group row ">
-          <label class="col-sm-3 col-form-label">Get Game Details</label>
-          <div class="col-sm-5">
-            <button type="button" class="btn btn-primary" @click='getGame'>Get Details</button>
-          </div>
-        </div>
-        <hr>
+      </div>
+
+      <div class="container">
+
+
+
+        <h3>Controls</h3>
+
         <h3>Game Details</h3>
         <div  v-if='game'>
           <template v-if='game.ownMove && game.enemyMove && !game.paid'>
@@ -97,6 +190,7 @@
 
 
           <p>gameId: {{ gameId }}</p>
+          <p>joinGameId: {{ joinGameId }}</p>
           <p>game.paid: {{ game.paid }}</p>
           <p>move: {{ move }}</p>
           <p>pass: {{ pass }}</p>

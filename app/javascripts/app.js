@@ -30,6 +30,11 @@ new Vue({
     moveEnc: ''
   },
   components: { App },
+  watch: {
+  months: function (gameId) {
+    alert(gameId);
+  }
+},
   methods: {
     withdraw: function() {
       var vm = this;
@@ -42,7 +47,6 @@ new Vue({
         vm.getGame();
       }).catch(function(e) {
         console.log(e);
-        console.log("Error sending coin; see log.");
       });
     },
     _makeMove: function() {
@@ -53,25 +57,24 @@ new Vue({
         meta = instance;
         return meta.move(vm.gameId, vm.moveEnc, {from: vm.account});
       }).then(function(result) {
+        console.log(60);
         vm.getGame();
       }).catch(function(e) {
         console.log(e);
-        console.log("Error sending coin; see log.");
       });
     },
     decriptMove: function() {
       var vm = this;
       var meta;
-      console.log('decriptMove', vm.gameId, vm.move, vm.pass);
       return MultiRPS.deployed().then(function(instance) {
         meta = instance;
         return meta.decriptMove(vm.gameId, vm.move, vm.pass, {from: vm.account});
       }).then(function(result) {
-        console.log('decriptMove result', result)
-        vm.getGame();
+        setTimeout(function () {
+          vm.getGame();
+        }, 1000);
       }).catch(function(e) {
         console.log(e);
-        console.log("Error sending coin; see log.");
       });
     },
     makeMove: function(){
@@ -83,7 +86,13 @@ new Vue({
       var vm = this;
       var meta;
       this.getmoveEnc().then(function(result){
-        vm._makeMove()
+        console.log(87);
+        vm._makeMove().then(function(){
+          console.log(88);
+          setTimeout(function () {
+            vm.getGame();
+          }, 1000);
+        });
       });
     },
     getmoveEnc: function(){
@@ -96,7 +105,6 @@ new Vue({
         vm.moveEnc = result;
       }).catch(function(e) {
         console.log(e);
-        console.log("Error sending coin; see log.");
       });
     },
     refresh: function() {
@@ -104,23 +112,22 @@ new Vue({
       vm.getGamesCounter().then(function() {
           vm.getClosedJoinGames().then(function() {
             vm.getMygames().then(function(){
-              vm.gameId = vm.myGames[0];
-              vm.getGame().then(function(){
-                vm.getAvailableGames();
-              });
+              // vm.gameId = vm.myGames[0];
+              vm.getAvailableGames();
+              vm.getGame();
             });
           });
       });
     },
     getDebug: function() {console.log('debug');},
     getGame: function() {
+      console.log('getGame');
       var vm = this;
       var meta;
       return MultiRPS.deployed().then(function(instance) {
         var result = instance.getGame.call(vm.gameId, {from: vm.account});
         return result;
       }).then(function(value) {
-        console.log('game', value);
         var nullString = '0x0000000000000000000000000000000000000000000000000000000000000000';
         var nullAddress = '0x0000000000000000000000000000000000000000';
 
@@ -196,6 +203,12 @@ new Vue({
       games = games.filter( function( el ) { return vm.closedJoinGames.indexOf( el ) < 0;});
       games = games.filter( function( el ) { return vm.myGames.indexOf( el ) < 0;});
       vm.availableGames = games;
+      if(vm.gameId == '' && vm.availableGames.length > 0){
+          vm.gameId = vm.myGames[0];
+      }
+      else {
+        console.log('no hay juegos', vm.gameId, vm.availableGames.length);
+      }
     },
     getMygames: function() {
       var vm = this;
@@ -246,7 +259,6 @@ new Vue({
         vm.refresh();
       }).catch(function(e) {
         console.log(e);
-        console.log("Error sending coin; see log.");
       });
     },
     joinGame: function() {
@@ -264,10 +276,10 @@ new Vue({
             break;
           }
         }
+        vm.gameId = vm.joinGameId;
         vm.refresh();
       }).catch(function(e) {
         console.log(e);
-        console.log("Error sending coin; see log.");
       });
     }
   },
