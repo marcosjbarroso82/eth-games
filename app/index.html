@@ -53,21 +53,29 @@
             </h4>
 
             <template v-if='!game.paid'>
-              <div v-if='game.enemyMoveEnc' class="alert alert-warning" role="alert">
-                Your <strong>adversary</strong> has already made it's <strong>move</strong>!
+              <div v-if='game.enemyMove && game.ownMove' class="alert alert-warning" role="alert">
+                You have both decrypt your moves. Time to collect!
               </div>
-              <div v-if='!game.ownMove && game.ownMoveEnc && game.ownMoveEnc' class="alert alert-warning" role="alert">
+              <div v-else-if='!game.ownMove && game.ownMoveEnc && game.enemyMoveEnc' class="alert alert-warning" role="alert">
                 You have both made your moves. Time to decrypt them!
               </div>
-              <div v-if='game.enemyMoveEnc && !game.enemyMove' class="alert alert-warning" role="alert">
+              <div v-else-if='game.enemyMoveEnc && !game.enemyMove' class="alert alert-warning" role="alert">
                 Your <strong>adversary</strong> has to <strong>decrypt</strong> it's move!
+              </div>
+              <div v-else-if='game.enemyMoveEnc' class="alert alert-warning" role="alert">
+                Your <strong>adversary</strong> has already made it's <strong>move</strong>!
+              </div>
+
+              <div v-if='game.enemy && !game.enemyMoveEnc && game.ownMoveEnc' class="alert alert-warning" role="alert">
+                You have to wait for your enemy to play!
               </div>
               <div v-if='!game.enemy && game.ownMoveEnc' class="alert alert-warning" role="alert">
                 You have <strong>no adversary yet</strong>. You have to wait for someone to join!
               </div>
-              <div v-if='game.enemyMove && game.ownMove' class="alert alert-warning" role="alert">
-                You have both decrypt your moves. Time to collect!
+              <div v-else-if='!game.ownMoveEnc' class="alert alert-warning" role="alert">
+                You have to post your move!
               </div>
+
             </template>
             <div v-if='game.paid' class="alert alert-success" role="alert">
               This game has ended and <strong>You have been paid!</strong>
@@ -105,7 +113,7 @@
             </form>
 
             <!-- Decript Form -->
-            <form v-if='!game.ownMove && game.ownMoveEnc && game.ownMoveEnc'>
+            <form v-if='!game.ownMove && game.ownMoveEnc && game.enemyMoveEnc'>
               <div class="form-group">
                 <label for="choose-game">Choose a move</label>
 
