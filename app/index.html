@@ -49,12 +49,7 @@
         <hr>
         <h3>Game Details</h3>
         <div  v-if='game'>
-          <p>gameId: {{ gameId }}</p>
-          <p>enemy: {{ game.enemy}}</p>
-          <p>enemyMoveEnc: {{ game.enemyMoveEnc}}</p>
-          <p>enemyMove: {{ game.enemyMove}}</p>
-          <!-- <p>next moveEnc:  {{ moveEnc }}</p> -->
-          <!-- <p>ownMoveEnc: {{ game.ownMoveEnc}}</p> -->
+
           <template v-if='game.ownMoveEnc'>
             <p>ownMoveEnc: {{ game.ownMoveEnc}}</p>
           </template>
@@ -77,6 +72,35 @@
             </div>
           </template>
           <p>ownMove: {{ game.ownMove}}</p>
+          <template v-if=' game.ownMoveEnc && game.enemyMoveEnc && !game.ownMove'>
+            <div class="form-group row ">
+              <label class="col-sm-3 col-form-label">Make you move!</label>
+              <div class="col-sm-3">
+              <select class="custom-select mr-sm-1" id="inlineFormCustomSelect" v-model='move'>
+                <option value="r">Rock</option>
+                <option value="p">Paper</option>
+                <option value="s">Scissor</option>
+              </select>
+              </div>
+              <div class="col-sm-3">
+                <input type="text" class="form-control" v-model="pass" placeholder="Enter a pass to encript your move">
+              </div>
+              <div class="col-sm-2">
+                <button @click='decriptMove' type="button" class="btn btn-primary pull-right">Decript Move</button>
+              </div>
+            </div>
+          </template>
+
+          </template>
+
+          <p>gameId: {{ gameId }}</p>
+          <p>move: {{ move }}</p>
+          <p>pass: {{ pass }}</p>
+          <p>enemy: {{ game.enemy}}</p>
+          <p>enemyMoveEnc: {{ game.enemyMoveEnc}}</p>
+          <p>enemyMove: {{ game.enemyMove}}</p>
+          <!-- <p>next moveEnc:  {{ moveEnc }}</p> -->
+          <!-- <p>ownMoveEnc: {{ game.ownMoveEnc}}</p> -->
         </div>
         <hr>
         <button @click='refresh'>refresh</button>

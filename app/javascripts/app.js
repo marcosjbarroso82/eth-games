@@ -26,7 +26,7 @@ new Vue({
     closedJoinGames: [],
     game: '',
     move: '',
-    pass: '',
+    pass: 'betterNoChange',
     moveEnc: ''
   },
   components: { App },
@@ -39,6 +39,21 @@ new Vue({
         meta = instance;
         return meta.move(vm.gameId, vm.moveEnc, {from: vm.account});
       }).then(function(result) {
+        vm.getGame();
+      }).catch(function(e) {
+        console.log(e);
+        console.log("Error sending coin; see log.");
+      });
+    },
+    decriptMove: function() {
+      var vm = this;
+      var meta;
+      console.log('decriptMove', vm.gameId, vm.move, vm.pass);
+      return MultiRPS.deployed().then(function(instance) {
+        meta = instance;
+        return meta.decriptMove(vm.gameId, vm.move, vm.pass, {from: vm.account});
+      }).then(function(result) {
+        console.log('decriptMove result', result)
         vm.getGame();
       }).catch(function(e) {
         console.log(e);
@@ -91,6 +106,7 @@ new Vue({
         var result = instance.getGame.call(vm.gameId, {from: vm.account});
         return result;
       }).then(function(value) {
+        console.log('game', value);
         var nullString = '0x0000000000000000000000000000000000000000000000000000000000000000';
         var nullAddress = '0x0000000000000000000000000000000000000000';
 
@@ -199,7 +215,7 @@ new Vue({
       var meta;
       return MultiRPS.deployed().then(function(instance) {
         meta = instance;
-        return meta.createGame({from: vm.account, value: web3.toWei(2, 'ether')});
+        return meta.createGame({from: vm.account, value: web3.toWei(0.2, 'ether')});
       }).then(function(result) {
         // Catch GameCreated Event
         for (var i = 0; i < result.logs.length; i++) {
@@ -221,7 +237,7 @@ new Vue({
       var meta;
       return MultiRPS.deployed().then(function(instance) {
         meta = instance;
-        return meta.joinGame(vm.joinGameId, {from: vm.account, value: web3.toWei(2, 'ether')});
+        return meta.joinGame(vm.joinGameId, {from: vm.account, value: web3.toWei(0.2, 'ether')});
       }).then(function(result) {
         // Catch GameCreated Event
         for (var i = 0; i < result.logs.length; i++) {

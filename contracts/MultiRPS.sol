@@ -26,8 +26,8 @@ contract MultiRPS {
   /* uint[] public availableGames; // games with pending player to join */
   uint[] public closedJoinGames; // games with all players enrolled
 
-  uint private bet = 1 ether;
-  uint private escrow = 1 ether;
+  uint private bet = 0.1 ether;
+  uint private escrow = 0.1 ether;
   uint private numberOfMoves;
   uint private numberOfPlayers = 2;
   /*
@@ -92,20 +92,19 @@ contract MultiRPS {
           log('player1');
           require(games[_gameId].player1MoveEnc != 0x0);
           log('your moveEnc is not empty');
-          if(games[_gameId].player1MoveEnc != enc(_move, _pass)){
-              log('you pass and move are wrong');
-              logB(_move);
-              logB(_pass);
-              logB(games[_gameId].player1MoveEnc);
-
-          }
+          log('DOES your move and pass match????');
           require(games[_gameId].player1MoveEnc == enc(_move, _pass));
+          log('your move and pass match!');
           games[_gameId].player1Move = _move;
           games[_gameId].player1Pass = _pass;
 
       } else {
+          log('player2');
           require(games[_gameId].player2MoveEnc != 0x0);
+          log('your moveEnc is not empty');
+          log('DOES your move and pass match????');
           require(games[_gameId].player2MoveEnc == enc(_move, _pass));
+          log('your move and pass match!');
           games[_gameId].player2Move = _move;
           games[_gameId].player2Pass = _pass;
       }
