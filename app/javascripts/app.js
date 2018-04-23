@@ -31,6 +31,20 @@ new Vue({
   },
   components: { App },
   methods: {
+    withdraw: function() {
+      var vm = this;
+      var meta;
+
+      return MultiRPS.deployed().then(function(instance) {
+        meta = instance;
+        return meta.withdraw(vm.gameId, {from: vm.account});
+      }).then(function(result) {
+        vm.getGame();
+      }).catch(function(e) {
+        console.log(e);
+        console.log("Error sending coin; see log.");
+      });
+    },
     _makeMove: function() {
       var vm = this;
       var meta;
@@ -130,12 +144,15 @@ new Vue({
           cleanGame['enemyMove'] = game.player2Move != nullString ? game.player2Move : false;
           cleanGame['ownMoveEnc'] = game.player1MoveEnc != nullString ? game.player1MoveEnc : false;
           cleanGame['ownMove'] = game.player1Move != nullString ? game.player1Move : false;
+          cleanGame['paid'] = game.player1Paid != nullString ? game.player1Paid : false;
         } else {
           cleanGame['enemy'] = game.player1 != nullAddress ? game.player1 : false;
           cleanGame['enemyMoveEnc'] = game.player1MoveEnc != nullString ? game.player1MoveEnc : false;
           cleanGame['enemyMove'] = game.player1Move != nullString ? game.player1Move : false;
           cleanGame['ownMoveEnc'] = game.player2MoveEnc != nullString ? game.player2MoveEnc : false;
           cleanGame['ownMove'] = game.player2Move != nullString ? game.player2Move : false;
+          cleanGame['paid'] = game.player2Paid != nullString ? game.player2Paid : false;
+
         }
         vm.game = cleanGame;
       }).catch(function(e) {

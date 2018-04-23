@@ -49,6 +49,10 @@
         <hr>
         <h3>Game Details</h3>
         <div  v-if='game'>
+          <template v-if='game.ownMove && game.enemyMove && !game.paid'>
+            <button @click='withdraw' type="button" class="btn btn-primary">Withdraw</button>
+          </template>
+
 
           <template v-if='game.ownMoveEnc'>
             <p>ownMoveEnc: {{ game.ownMoveEnc}}</p>
@@ -91,9 +95,9 @@
             </div>
           </template>
 
-          </template>
 
           <p>gameId: {{ gameId }}</p>
+          <p>game.paid: {{ game.paid }}</p>
           <p>move: {{ move }}</p>
           <p>pass: {{ pass }}</p>
           <p>enemy: {{ game.enemy}}</p>
