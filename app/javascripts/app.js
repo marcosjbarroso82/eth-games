@@ -32,19 +32,13 @@ new Vue({
   components: { App },
   methods: {
     _makeMove: function() {
-      console.log("Initiating transaction... (please wait)");
       var vm = this;
       var meta;
-      console.log('_makeMove', vm.gameId, vm.moveEnc);
 
       return MultiRPS.deployed().then(function(instance) {
-        console.log('first then in _makeMove');
         meta = instance;
         return meta.move(vm.gameId, vm.moveEnc, {from: vm.account});
       }).then(function(result) {
-        console.log("Transaction Move complete!", result);
-        // Catch GameCreated Event
-
         vm.getGame();
       }).catch(function(e) {
         console.log(e);
@@ -60,32 +54,19 @@ new Vue({
       var vm = this;
       var meta;
       this.getmoveEnc().then(function(result){
-        console.log('then afet getmoveEnc');
         vm._makeMove()
-
-      }
-      );
+      });
     },
     getmoveEnc: function(){
-
-
-      console.log("Initiating transaction... (please wait)");
       var vm = this;
       var meta;
       return MultiRPS.deployed().then(function(instance) {
-        console.log('first then');
         meta = instance;
         return meta.enc(vm.move, vm.pass, {from: vm.account});
       }).then(function(result) {
-        console.log("Transaction complete!", result);
         vm.moveEnc = result;
-
-        // this.move = '';
-        // this.pass = '';
-        // this.getGame();
       }).catch(function(e) {
         console.log(e);
-
         console.log("Error sending coin; see log.");
       });
     },
@@ -102,7 +83,6 @@ new Vue({
           });
       });
     },
-
     getDebug: function() {console.log('debug');},
     getGame: function() {
       var vm = this;
@@ -111,9 +91,6 @@ new Vue({
         var result = instance.getGame.call(vm.gameId, {from: vm.account});
         return result;
       }).then(function(value) {
-        // vm.availableGames = value;
-        // vm.closedJoinGames = value.filter( ( el ) => !vm.myGames.includes( el ) );
-        console.log(value);
         var nullString = '0x0000000000000000000000000000000000000000000000000000000000000000';
         var nullAddress = '0x0000000000000000000000000000000000000000';
 
@@ -144,7 +121,6 @@ new Vue({
           cleanGame['ownMoveEnc'] = game.player2MoveEnc != nullString ? game.player2MoveEnc : false;
           cleanGame['ownMove'] = game.player2Move != nullString ? game.player2Move : false;
         }
-        // debugger;
         vm.game = cleanGame;
       }).catch(function(e) {
         console.log(e);
@@ -157,9 +133,6 @@ new Vue({
         var result = instance.gamesCounter.call({from: vm.account});
         return result;
       }).then(function(value) {
-        // vm.availableGames = value;
-        // vm.closedJoinGames = value.filter( ( el ) => !vm.myGames.includes( el ) );
-        console.log(value);
         vm.gamesCounter = value;
       }).catch(function(e) {
         console.log(e);
@@ -172,9 +145,6 @@ new Vue({
         var result = instance.getClosedJoinGames.call({from: vm.account});
         return result;
       }).then(function(value) {
-        // vm.availableGames = value;
-        // vm.closedJoinGames = value.filter( ( el ) => !vm.myGames.includes( el ) );
-        console.log(value);
         vm.closedJoinGames = [];
         for(var i = 0; i < value.length; i++) {
           vm.closedJoinGames.push(value[i].toNumber());
@@ -185,7 +155,6 @@ new Vue({
       });
     },
     getAvailableGames: function() {
-      console.log('getAvailableGames');
       var vm = this;
       var games = [];
       for (var i=0; i < vm.gamesCounter; i++) {
@@ -199,11 +168,8 @@ new Vue({
       var vm = this;
       var meta;
       return MultiRPS.deployed().then(function(instance) {
-        console.log('first then');
-        var result = instance.getPlayerGames.call(vm.account, {from: vm.account});
-        return result;
+        return instance.getPlayerGames.call(vm.account, {from: vm.account});
       }).then(function(value) {
-        console.log('second then');
         vm.myGames = [];
         for (var i=0; i < value.length; i++) {
             vm.myGames.push(value[i].toNumber());
@@ -230,16 +196,11 @@ new Vue({
     },
     createGame: function() {
       var vm = this;
-      console.log("Initiating transaction... (please wait)");
-
       var meta;
       return MultiRPS.deployed().then(function(instance) {
-        console.log('first then');
         meta = instance;
         return meta.createGame({from: vm.account, value: web3.toWei(2, 'ether')});
       }).then(function(result) {
-        console.log("Transaction complete!", result);
-
         // Catch GameCreated Event
         for (var i = 0; i < result.logs.length; i++) {
           var log = result.logs[i];
@@ -256,15 +217,12 @@ new Vue({
       });
     },
     joinGame: function() {
-      console.log("Initiating transaction... (please wait)");
       var vm = this;
       var meta;
       return MultiRPS.deployed().then(function(instance) {
-        console.log('first then');
         meta = instance;
         return meta.joinGame(vm.joinGameId, {from: vm.account, value: web3.toWei(2, 'ether')});
       }).then(function(result) {
-        console.log("Transaction complete!", result);
         // Catch GameCreated Event
         for (var i = 0; i < result.logs.length; i++) {
           var log = result.logs[i];
@@ -282,7 +240,6 @@ new Vue({
   },
   created : function() {
     MultiRPS.setProvider(web3.currentProvider);
-    console.log('provider set');
     this.getAccount();
     this.refresh();
   }
