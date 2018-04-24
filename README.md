@@ -1,4 +1,4 @@
-# Crypto getGameStatus
+# Crypto Rock Paper and Scissors
 
 ## Installation
 ```
