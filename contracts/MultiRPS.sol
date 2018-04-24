@@ -78,10 +78,13 @@ contract MultiRPS {
   function move(uint _gameId, bytes32 _moveEnc) external isPlayer(_gameId)
     isValidMove(_moveEnc){
       if(msg.sender == games[_gameId].player1) {
+          log('player1 moved');
           games[_gameId].player1MoveEnc = _moveEnc;
       } else {
+          log('player2 moved');
           games[_gameId].player2MoveEnc = _moveEnc;
       }
+      logB(_moveEnc);
   }
 
   function decriptMove(uint _gameId, bytes32 _move, bytes32 _pass) external

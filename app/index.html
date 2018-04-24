@@ -143,10 +143,8 @@
       </div>
 
       <div v-if='showDebug' class="container">
-
-
-
-        <h3>Controls</h3>
+        <pre>{{ game }}</pre>
+        <p>moveEnc: {{ moveEnc }}</p>
 
         <h3>Game Details</h3>
         <div  v-if='game'>
@@ -201,6 +199,7 @@
           <p>joinGameId: {{ joinGameId }}</p>
           <p>game.paid: {{ game.paid }}</p>
           <p>move: {{ move }}</p>
+          <p>ownMoveEnc: {{ game.ownMoveEnc}}</p>
           <p>pass: {{ pass }}</p>
           <p>enemy: {{ game.enemy}}</p>
           <p>enemyMoveEnc: {{ game.enemyMoveEnc}}</p>

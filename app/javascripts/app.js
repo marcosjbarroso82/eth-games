@@ -71,15 +71,13 @@ new Vue({
       });
     },
     _makeMove: function() {
+      console.log('_makeMove');
       var vm = this;
       var meta;
 
       return MultiRPS.deployed().then(function(instance) {
         meta = instance;
         return meta.move(vm.gameId, vm.moveEnc, {from: vm.account});
-      }).then(function(result) {
-        console.log(60);
-        vm.getGame();
       }).catch(function(e) {
         console.log(e);
       });
@@ -87,16 +85,33 @@ new Vue({
     decriptMove: function() {
       var vm = this;
       var meta;
+      // check the pass and move are correct!
       return MultiRPS.deployed().then(function(instance) {
         meta = instance;
-        return meta.decriptMove(vm.gameId, vm.move, vm.pass, {from: vm.account});
+        return meta.enc(vm.move, vm.pass, {from: vm.account});
       }).then(function(result) {
-        setTimeout(function () {
-          vm.getGame();
-        }, 1000);
+        vm.moveEnc = result;
+
+        if(vm.moveEnc != vm.game.ownMoveEnc) {
+          alert('the pass and move do not match');
+        } else {
+          // alert('coinciden... las habria enviado!')
+          MultiRPS.deployed().then(function(instance) {
+            meta = instance;
+            return meta.decriptMove(vm.gameId, vm.move, vm.pass, {from: vm.account});
+          }).then(function(result) {
+            setTimeout(function () {
+              vm.getGame();
+            }, 1000);
+          }).catch(function(e) {
+            console.log(e);
+          });
+        }
       }).catch(function(e) {
         console.log(e);
       });
+
+
     },
     makeMove: function(){
       if(this.move == '' || this.pass == '') {
@@ -108,8 +123,8 @@ new Vue({
       var meta;
       this.getmoveEnc().then(function(result){
         console.log(87);
-        vm._makeMove().then(function(){
-          console.log(88);
+        vm._makeMove().then(function(res){
+          console.log(res);
           setTimeout(function () {
             vm.getGame();
           }, 1000);
@@ -117,6 +132,7 @@ new Vue({
       });
     },
     getmoveEnc: function(){
+      console.log('getmoveEnc');
       var vm = this;
       var meta;
       return MultiRPS.deployed().then(function(instance) {
@@ -130,7 +146,7 @@ new Vue({
     },
     getDebug: function() {console.log('debug');},
     getGame: function() {
-      console.log('getGame');
+      // console.log('getGame');
       var vm = this;
       var meta;
 
@@ -147,7 +163,7 @@ new Vue({
         }).then(function(value) {
           var nullString = '0x0000000000000000000000000000000000000000000000000000000000000000';
           var nullAddress = '0x0000000000000000000000000000000000000000';
-
+          console.log(value);
           var game =  {
             'player1': value[0],
             'player2': value[1],
@@ -160,6 +176,7 @@ new Vue({
             'player2Pass': value[8],
             'player2Paid': value[9]
           };
+          // console.log(game);
 
           var cleanGame = {};
           if(game.player1 == vm.account) {
@@ -268,6 +285,7 @@ new Vue({
         }
         setTimeout(function () {
           vm.refresh();
+          vm.getGame();
         }, 1000);
       }).catch(function(e) {
         console.log(e);
@@ -291,6 +309,7 @@ new Vue({
         vm.gameId = vm.joinGameId;
         setTimeout(function () {
           vm.refresh();
+          vm.getGame();
         }, 1000);
       }).catch(function(e) {
         console.log(e);
@@ -317,7 +336,7 @@ new Vue({
 
       setInterval(function () {
         vm.getGame();
-      }, 1000);
+      }, 3000);
     } else {
       alert('Use mist and metamask and reload the page!')
     }
