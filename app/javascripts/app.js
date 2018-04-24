@@ -16,10 +16,12 @@ var MultiRPS = contract(multi_rps_artifacts);
 new Vue({
   el: '#app',
   data: {
+    showDebug: false,
     debug: '',
     account: 0,
     gameId: '',
     joinGameId: '',
+    games: [],
     gamesCounter: 0,
     myGames: [],
     availableGames: [],
@@ -36,6 +38,25 @@ new Vue({
   }
 },
   methods: {
+    refresh: function() {
+      this.getGames().then(() => {
+        this.getMygames().then(() => {
+          this.getAvailableGames();
+          this.getGame();
+        });
+      });
+    },
+    getGames: function(){
+      var vm = this;
+      var games = [];
+      return vm.getGamesCounter().then(function(){
+        for (var i=0; i < vm.gamesCounter; i++) {
+            games.push(i);
+        }
+        vm.games = games;
+      });
+
+    },
     withdraw: function() {
       var vm = this;
       var meta;
@@ -107,64 +128,61 @@ new Vue({
         console.log(e);
       });
     },
-    refresh: function() {
-      var vm = this;
-      vm.getGamesCounter().then(function() {
-          vm.getClosedJoinGames().then(function() {
-            vm.getMygames().then(function(){
-              // vm.gameId = vm.myGames[0];
-              vm.getAvailableGames();
-              vm.getGame();
-            });
-          });
-      });
-    },
     getDebug: function() {console.log('debug');},
     getGame: function() {
       console.log('getGame');
       var vm = this;
       var meta;
-      return MultiRPS.deployed().then(function(instance) {
-        var result = instance.getGame.call(vm.gameId, {from: vm.account});
-        return result;
-      }).then(function(value) {
-        var nullString = '0x0000000000000000000000000000000000000000000000000000000000000000';
-        var nullAddress = '0x0000000000000000000000000000000000000000';
 
-        var game =  {
-          'player1': value[0],
-          'player2': value[1],
-          'player1Move': value[2],
-          'player1MoveEnc': value[3],
-          'player1Pass': value[4],
-          'player1Paid': value[5],
-          'player2Move': value[6],
-          'player2MoveEnc': value[7],
-          'player2Pass': value[8],
-          'player2Paid': value[9]
-        };
+      // if((vm.gameId == undefined || vm.gameId == '') && vm.myGames.length > 0) {
+      //   vm.gameId = vm.myGames[0];
+      // }
 
-        var cleanGame = {};
-        if(game.player1 == vm.account) {
-          cleanGame['enemy'] = game.player2 != nullAddress ? game.player2 : false;
-          cleanGame['enemyMoveEnc'] = game.player2MoveEnc != nullString ? game.player2MoveEnc : false;
-          cleanGame['enemyMove'] = game.player2Move != nullString ? game.player2Move : false;
-          cleanGame['ownMoveEnc'] = game.player1MoveEnc != nullString ? game.player1MoveEnc : false;
-          cleanGame['ownMove'] = game.player1Move != nullString ? game.player1Move : false;
-          cleanGame['paid'] = game.player1Paid != nullString ? game.player1Paid : false;
-        } else {
-          cleanGame['enemy'] = game.player1 != nullAddress ? game.player1 : false;
-          cleanGame['enemyMoveEnc'] = game.player1MoveEnc != nullString ? game.player1MoveEnc : false;
-          cleanGame['enemyMove'] = game.player1Move != nullString ? game.player1Move : false;
-          cleanGame['ownMoveEnc'] = game.player2MoveEnc != nullString ? game.player2MoveEnc : false;
-          cleanGame['ownMove'] = game.player2Move != nullString ? game.player2Move : false;
-          cleanGame['paid'] = game.player2Paid != nullString ? game.player2Paid : false;
+      if(this.gameId != '' && this.gameId != undefined){
+        console.log('gameId', this.gameId);
 
-        }
-        vm.game = cleanGame;
-      }).catch(function(e) {
-        console.log(e);
-      });
+        return MultiRPS.deployed().then(function(instance) {
+          var result = instance.getGame.call(vm.gameId, {from: vm.account});
+          return result;
+        }).then(function(value) {
+          var nullString = '0x0000000000000000000000000000000000000000000000000000000000000000';
+          var nullAddress = '0x0000000000000000000000000000000000000000';
+
+          var game =  {
+            'player1': value[0],
+            'player2': value[1],
+            'player1Move': value[2],
+            'player1MoveEnc': value[3],
+            'player1Pass': value[4],
+            'player1Paid': value[5],
+            'player2Move': value[6],
+            'player2MoveEnc': value[7],
+            'player2Pass': value[8],
+            'player2Paid': value[9]
+          };
+
+          var cleanGame = {};
+          if(game.player1 == vm.account) {
+            cleanGame['enemy'] = game.player2 != nullAddress ? game.player2 : false;
+            cleanGame['enemyMoveEnc'] = game.player2MoveEnc != nullString ? game.player2MoveEnc : false;
+            cleanGame['enemyMove'] = game.player2Move != nullString ? game.player2Move : false;
+            cleanGame['ownMoveEnc'] = game.player1MoveEnc != nullString ? game.player1MoveEnc : false;
+            cleanGame['ownMove'] = game.player1Move != nullString ? game.player1Move : false;
+            cleanGame['paid'] = game.player1Paid != nullString ? game.player1Paid : false;
+          } else {
+            cleanGame['enemy'] = game.player1 != nullAddress ? game.player1 : false;
+            cleanGame['enemyMoveEnc'] = game.player1MoveEnc != nullString ? game.player1MoveEnc : false;
+            cleanGame['enemyMove'] = game.player1Move != nullString ? game.player1Move : false;
+            cleanGame['ownMoveEnc'] = game.player2MoveEnc != nullString ? game.player2MoveEnc : false;
+            cleanGame['ownMove'] = game.player2Move != nullString ? game.player2Move : false;
+            cleanGame['paid'] = game.player2Paid != nullString ? game.player2Paid : false;
+
+          }
+          vm.game = cleanGame;
+        }).catch(function(e) {
+          console.log(e);
+        });
+      }
     },
     getGamesCounter: function() {
       var vm = this;
@@ -220,25 +238,16 @@ new Vue({
         for (var i=0; i < value.length; i++) {
             vm.myGames.push(value[i].toNumber());
         }
+
+        if((vm.gameId == undefined || vm.gameId == '') && vm.myGames.length > 0) {
+          vm.gameId = vm.myGames[0];
+        }
       }).catch(function(e) {
         console.log(e);
       });
     },
     getAccount: function() {
-      var vm = this;
-
-      // Get the initial account balance so it can be displayed.
-      web3.eth.getAccounts(function(err, accs) {
-        if (err != null) {
-          alert("There was an error fetching your accounts.");
-          return;
-        }
-        if (accs.length == 0) {
-          alert("Couldn't get any accounts! Make sure your Ethereum client is configured correctly.");
-          return;
-        }
-        vm.account = accs[0];
-      });
+      this.account = web3.eth.accounts[0];
     },
     createGame: function() {
       var vm = this;
@@ -253,10 +262,13 @@ new Vue({
 
           if (log.event == "GameCreated") {
             vm.gameId = log.args.gameId.valueOf();
+            console.log('change to game created', vm.gameId);
             break;
           }
         }
-        vm.refresh();
+        setTimeout(function () {
+          vm.refresh();
+        }, 1000);
       }).catch(function(e) {
         console.log(e);
       });
@@ -277,15 +289,45 @@ new Vue({
           }
         }
         vm.gameId = vm.joinGameId;
-        vm.refresh();
+        setTimeout(function () {
+          vm.refresh();
+        }, 1000);
       }).catch(function(e) {
         console.log(e);
       });
     }
   },
   created : function() {
-    MultiRPS.setProvider(web3.currentProvider);
-    this.getAccount();
-    this.refresh();
+    var vm = this;
+    if (typeof web3 !== 'undefined') {
+      // Use Mist/MetaMask's provider
+      MultiRPS.setProvider(web3.currentProvider);
+      this.getAccount();
+      this.refresh();
+
+      setInterval(function () {
+        var account = web3.eth.accounts[0];
+        if( account !== vm.account) {
+          console.log('account changed', vm.account, account);
+          vm.account = account;
+          vm.gameId = '';
+          vm.refresh();
+        }
+      }, 1000);
+
+      setInterval(function () {
+        vm.getGame();
+      }, 1000);
+    } else {
+      alert('Use mist and metamask and reload the page!')
+    }
+
+
+    // this.getAccount();
+    // this.refresh();
+  },
+  mounted: function() {
+    var vm = this;
+
   }
 })
